@@ -63,11 +63,11 @@ print(paste("Average R2: ", mlr_avg))
 # ------------------------------------------------------------------------------
 # Random Forest Regression
 # ------------------------------------------------------------------------------
-# Splitting the dataset into the Training set and Test set
 rf_sum = 0
 
 # Function for calling random forest regression
 random_forest <- function() {
+  # Splitting the dataset into the Training set and Test set
   split = sample.split(dataset$Store_Sales, SplitRatio = 0.8)
   training_set = subset(dataset, split == TRUE)
   test_set = subset(dataset, split == FALSE)
@@ -95,6 +95,8 @@ random_forest <- function() {
 }
 
 # Average R2
-rf_sum = rf_sum + random_forest()
+for (x in 1:10) {
+  rf_sum = rf_sum + random_forest()
+}
 rf_avg = rf_sum / 10
 print(paste("Average R2: ", rf_avg))
