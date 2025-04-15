@@ -101,20 +101,64 @@ training_set$medianagefemale2 = training_set$medianagefemale^2
 training_set$percentmarried2 = training_set$percentmarried^2
 training_set$pctnohs18_24_2 = training_set$pctnohs18_24^2
 training_set$pcths18_24_2 = training_set$pcths18_24^2
-training_set$pcths18_24_2 = training_set$pcths18_24^2
+training_set$pctsomecol18_24_2 = training_set$pctsomecol18_24^2
+training_set$pctbachdeg18_24_2 = training_set$pctbachdeg18_24^2
+training_set$pcths25_over2 = training_set$pcths25_over^2
+training_set$pctbachdeg25_over2 = training_set$pctbachdeg25_over^2
+training_set$pctemployed16_over2 = training_set$pctemployed16_over^2
+training_set$pctunemployed16_over2 = training_set$pctunemployed16_over^2
+training_set$pctprivatecoverage2 = training_set$pctprivatecoverage^2
+training_set$pctprivatecoveragealone2 = training_set$pctprivatecoveragealone^2
+training_set$pctempprivcoverage2 = training_set$pctempprivcoverage^2
+training_set$pctpubliccoverage2 = training_set$pctpubliccoverage^2
+training_set$pctpubliccoveragealone2 = training_set$pctpubliccoveragealone^2
+training_set$pctwhite2 = training_set$pctwhite^2
+training_set$pctblack2 = training_set$pctblack^2
+training_set$pctasian2 = training_set$pctasian^2
+training_set$pctotherrace2 = training_set$pctotherrace^2
+training_set$pctmarriedhouseholds2 = training_set$pctmarriedhouseholds^2
+training_set$bithrate2 = training_set$birthrate^2
+
 
 
 
 # Fitting Polynomial Regression model
-regressor = lm(formula = Store_Sales ~ Store_Area + Store_Area2 +
-                 Items_Available + Items_Available2 +
-                 Daily_Customer_Count + Daily_Customer_Count2,
-               data = training_set)
+regressor = lm(formula = avganncount ~ avgdeathsperyear + avgdeathsperyear2 +
+                 target_deathrate + target_deathrate2 +
+                 incidencerate + incidencerate2 +
+                 medincome + medincome2 + 
+                 popest2015 + popest20152 +
+                 povertypercent + povertypercent2 + 
+                 studypercap + studypercap2 + 
+                 medianage + medianage2 + 
+                 medianagemale + medianagemale2 + 
+                 medianagefemale + medianagefemale2 +
+                 percentmarried + percentmarried2 +
+                 pctnohs18_24 + pctnohs18_24_2 +
+                 pcths18_24 + pcths18_24_2 + 
+                 pctsomecol18_24 + pctsomecol18_24_2+
+                 pctbachdeg18_24 + pctbachdeg18_24_2 + 
+                 pctbachdeg25_over + pctbachdeg25_over2 + 
+                 pctemployed16_over + pctemployed16_over2 +
+                 pctunemployed16_over + pctunemployed16_over2 + 
+                 pctprivatecoverage + pctprivatecoverage2 + 
+                 pctprivatecoveragealone + pctprivatecoveragealone2 +
+                 pctempprivcoverage + pctempprivcoverage2 + 
+                 pctpubliccoverage + pctpubliccoverage2+
+                 pctpubliccoveragealone + pctpubliccoveragealone2 +
+                 pctwhite + pctwhite2 + 
+                 pctblack + pctblack2 + 
+                 pctasian + pctasian2 + 
+                 pctotherrace + pctotherrace2 +
+                 pctmarriedhouseholds + pctmarriedhouseholds2 + 
+                 birthrate + bithrate2,
+                data = training_set)
 
 # Summary to evaluate p-values
 summary(regressor)
 
-#Started this, unfinished because the p values are terrible
+#Started this, unfinished because the p values are mixed, some qualify for
+#p-value, others do not, unsure if you can remove characteristics
 
 
 
