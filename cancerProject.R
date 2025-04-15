@@ -33,6 +33,46 @@ training_set[, 1:31] = training_scaled_cols
 test_set[, 1:31] = scale(test_set[, 1:31], center=attr(training_scaled_cols, 'scaled:center'),
                         scale=attr(training_scaled_cols, 'scaled:scale'))
 
+# ------------------------------------------------------------------------------
+# Random Forest Regression
+# ------------------------------------------------------------------------------
+rf_sum = 0
+
+# Function for calling random forest regression
+random_forest <- function() {
+  # Splitting the dataset into the Training set and Test set
+  split = sample.split(dataset$avganncount, SplitRatio = 0.8)
+  training_set = subset(dataset, split == TRUE)
+  test_set = subset(dataset, split == FALSE)
+  
+  # Feature Scaling
+  training_scaled_cols = scale(training_set[, 1:31])
+  training_set[, 1:31] = training_scaled_cols
+  test_set[, 1:31] = scale(test_set[, 1:31], center=attr(training_scaled_cols, 'scaled:center'),
+                           scale=attr(training_scaled_cols, 'scaled:scale'))
+  
+  library(randomForest)
+  rf_regressor = randomForest(formula = avganncount ~ .,
+                              data = training_set,
+                              ntree = 500)
+  rf_y_pred = predict(rf_regressor, newdata = test_set)
+  
+  # Evaluating the Model Performance
+  rf_ssr = sum((test_set$avganncount - rf_y_pred)^2)
+  rf_sst = sum((test_set$avganncount - mean(test_set$avganncount))^2)
+  rf_r2 = 1 - rf_ssr/rf_sst
+  print(paste("R2: ", rf_r2))
+  rf_r2_adjusted = 1 - (1 - rf_r2) * (length(test_set$avganncount) - 1) / (length(test_set$avganncount) - ncol(test_set) - 1)
+  print(paste("Adjusted R2: ", rf_r2_adjusted))
+  return(rf_r2_adjusted)
+}
+
+# Average R2
+for (x in 1:10) {
+  rf_sum = rf_sum + random_forest()
+}
+rf_avg = rf_sum / 10
+print(paste("Average R2: ", rf_avg))
 
 # ------------------------------------------------------------------------------
 # SVR
