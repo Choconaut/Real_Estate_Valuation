@@ -26,7 +26,6 @@ dataset = subset(dataset, select = c(target_deathrate,
                                      percentmarried,
                                      pcths25_over,
                                      pctbachdeg25_over,
-                                     pctemployed16_over,
                                      pctunemployed16_over,
                                      pctprivatecoverage,
                                      pctpubliccoverage,
@@ -161,7 +160,7 @@ for (x in 1:10) {
 }
 rf_avg = rf_sum / 10
 print(paste("Average R2: ", rf_avg))
-# average r2: 0.33
+# average r2: 0.32
 
 # Visualizing the Random Forest Regression results
 
