@@ -167,126 +167,42 @@ print(paste("Average R2: ", rf_avg))
 # ------------------------------------------------------------------------------
 # SVR
 # ------------------------------------------------------------------------------
-# Fitting SVR to the training set
-regressor = svm(formula = avganncount ~ .,
-                data = training_set,
-                type = 'eps-regression',
-                kernel = 'radial')
+svr_sum = 0
+set.seed(123)
 
-# Predicting on the test set
-svr_y_pred_scaled = predict(regressor, newdata = test_set[, 1:31])
+# Function for calling random forest regression
+svr_model <- function() {
+  # Splitting the dataset into the Training set and Test set
+  split = sample.split(dataset$target_deathrate, SplitRatio = 0.8)
+  training_set = subset(dataset, split == TRUE)
+  test_set = subset(dataset, split == FALSE)
+  
+  svr_regressor =  svm(formula = target_deathrate ~ .,
+                       data = training_set,
+                       type = 'eps-regression',
+                       kernel = 'radial')
+  svr_y_pred = predict(svr_regressor, newdata = test_set)
+  
+  # Evaluating the Model Performance
+  svr_ssr = sum((test_set$target_deathrate - svr_y_pred)^2)
+  svr_sst = sum((test_set$target_deathrate - mean(test_set$target_deathrate))^2)
+  svr_r2 = 1 - svr_ssr/svr_sst
+  print(paste("R2: ", svr_r2))
+  svr_r2_adjusted = 1 - (1 - svr_r2) * (length(test_set$target_deathrate) - 1) / (length(test_set$target_deathrate) - ncol(test_set) - 1)
+  print(paste("Adjusted R2: ", svr_r2_adjusted))
+  return(svr_r2_adjusted)
+}
 
-# Inverse scaling of predictions
-target_center = attr(training_scaled_cols, "scaled:center")[1]
-target_scale = attr(training_scaled_cols, "scaled:scale")[1]
-svr_y_pred = svr_y_pred_scaled * target_scale + target_center
-y_actual_scaled <- test_set$avganncount
-y_actual <- y_actual_scaled * target_scale + target_center
-
-# Calculating R² and Adjusted R²
-ssr = sum((test_set$avganncount - svr_y_pred)^2)
-sst = sum((test_set$avganncount - mean(test_set$avganncount))^2)
-r2 = 1 - (ssr / sst)
-adjusted_r2 = 1 - (1 - r2) * (nrow(test_set) - 1) / (nrow(test_set) - 3 - 1)
-
-cat("R²: ", round(r2, 4), "\n")
-cat("Adjusted R²: ", round(adjusted_r2, 4), "\n")
-
-summary(test_set$avganncount)
-summary(svr_y_pred_scaled)
-
-# # Comparing Actual vs Predicted
-# comparison = data.frame(
-#   Actual = test_set$avganncount,
-#   Predicted = svr_y_pred
-# )
-# 
-# ggplot(comparison, aes(x = Actual, y = Predicted)) +
-#   geom_point(color = 'darkblue') +
-#   geom_abline(intercept = 0, slope = 1, color = 'red', linetype = "dashed") +
-#   ggtitle('Actual vs Predicted Store Sales') +
-#   xlab('Actual Sales') +
-#   ylab('Predicted Sales')
+# Average R2
+for (x in 1:10) {
+  svr_sum = svr_sum + svr_model()
+}
+svr_avg = svr_sum / 10
+print(paste("Average R2: ", svr_avg))
 
 
-# ------------------------------------------------------------------------------
-# Polynomial Regression
-# ------------------------------------------------------------------------------
+#Average R2: 0.2890264
 
-
-
-# Creating polynomial features (e.g., degree 2)
-training_set$avgdeathsperyear2 = training_set$avgdeathsperyear^2
-training_set$target_deathrate2 = training_set$target_deathrate^2
-training_set$incidencerate2 = training_set$incidencerate^2
-training_set$medincome2 = training_set$medincome^2
-training_set$popest20152 = training_set$popest2015^2
-training_set$povertypercent2 = training_set$povertypercent^2
-training_set$studypercap2 = training_set$studypercap^2
-training_set$medianage2 = training_set$medianage^2
-training_set$medianagemale2 = training_set$medianagemale^2
-training_set$medianagefemale2 = training_set$medianagefemale^2
-training_set$percentmarried2 = training_set$percentmarried^2
-training_set$pctnohs18_24_2 = training_set$pctnohs18_24^2
-training_set$pcths18_24_2 = training_set$pcths18_24^2
-training_set$pctsomecol18_24_2 = training_set$pctsomecol18_24^2
-training_set$pctbachdeg18_24_2 = training_set$pctbachdeg18_24^2
-training_set$pcths25_over2 = training_set$pcths25_over^2
-training_set$pctbachdeg25_over2 = training_set$pctbachdeg25_over^2
-training_set$pctemployed16_over2 = training_set$pctemployed16_over^2
-training_set$pctunemployed16_over2 = training_set$pctunemployed16_over^2
-training_set$pctprivatecoverage2 = training_set$pctprivatecoverage^2
-training_set$pctprivatecoveragealone2 = training_set$pctprivatecoveragealone^2
-training_set$pctempprivcoverage2 = training_set$pctempprivcoverage^2
-training_set$pctpubliccoverage2 = training_set$pctpubliccoverage^2
-training_set$pctpubliccoveragealone2 = training_set$pctpubliccoveragealone^2
-training_set$pctwhite2 = training_set$pctwhite^2
-training_set$pctblack2 = training_set$pctblack^2
-training_set$pctasian2 = training_set$pctasian^2
-training_set$pctotherrace2 = training_set$pctotherrace^2
-training_set$pctmarriedhouseholds2 = training_set$pctmarriedhouseholds^2
-training_set$bithrate2 = training_set$birthrate^2
-
-
-
-
-# Fitting Polynomial Regression model
-regressor = lm(formula = avganncount ~ avgdeathsperyear + avgdeathsperyear2 +
-                 target_deathrate + target_deathrate2 +
-                 incidencerate + incidencerate2 +
-                 medincome + medincome2 + 
-                 popest2015 + popest20152 +
-                 povertypercent + povertypercent2 + 
-                 studypercap + studypercap2 + 
-                 medianage + medianage2 + 
-                 medianagemale + medianagemale2 + 
-                 medianagefemale + medianagefemale2 +
-                 percentmarried + percentmarried2 +
-                 pctnohs18_24 + pctnohs18_24_2 +
-                 pcths18_24 + pcths18_24_2 + 
-                 pctsomecol18_24 + pctsomecol18_24_2+
-                 pctbachdeg18_24 + pctbachdeg18_24_2 + 
-                 pctbachdeg25_over + pctbachdeg25_over2 + 
-                 pctemployed16_over + pctemployed16_over2 +
-                 pctunemployed16_over + pctunemployed16_over2 + 
-                 pctprivatecoverage + pctprivatecoverage2 + 
-                 pctprivatecoveragealone + pctprivatecoveragealone2 +
-                 pctempprivcoverage + pctempprivcoverage2 + 
-                 pctpubliccoverage + pctpubliccoverage2+
-                 pctpubliccoveragealone + pctpubliccoveragealone2 +
-                 pctwhite + pctwhite2 + 
-                 pctblack + pctblack2 + 
-                 pctasian + pctasian2 + 
-                 pctotherrace + pctotherrace2 +
-                 pctmarriedhouseholds + pctmarriedhouseholds2 + 
-                 birthrate + bithrate2,
-                data = training_set)
-
-# Summary to evaluate p-values
-summary(regressor)
-
-#Started this, unfinished because the p values are mixed, some qualify for
-#p-value, others do not, unsure if you can remove characteristics
 
 
 
